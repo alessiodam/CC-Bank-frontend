@@ -1,3 +1,0 @@
-<template>
-    Dashboard page
-</template>

@@ -1,3 +1,0 @@
-<template>
-    Register page
-</template>
