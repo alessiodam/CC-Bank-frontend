@@ -1,10 +1,9 @@
 "use client";
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Input } from "@/components/ui/input"
 import './page.css';
 import { Button } from '@/components/ui/button';
 import { Terminal } from "lucide-react"
-
 import {
     Alert,
     AlertDescription,
@@ -33,16 +32,28 @@ const Page = () => {
                 const { session_token } = data;
 
                 document.cookie = `session_token=${session_token}; path=/`;
+                document.cookie = `username=${username}; path=/`;
                 console.log("Login successful");
                 window.location.href = '/dashboard';
             } else {
                 console.error("Login failed");
-                
+
             }
         } catch (error) {
             console.error("An error occurred during login:", error);
         }
+        
     };
+
+    useEffect(() => {
+        const sessionToken = document.cookie
+            .split('; ')
+            .find((cookie) => cookie.startsWith('session_token'));
+
+        if (sessionToken) {
+            window.location.href = '/dashboard';
+        }
+    });
 
     return (
         <div className="container">
@@ -54,8 +65,11 @@ const Page = () => {
                     This is still very early and might not work as expected.
                 </AlertDescription>
             </Alert>
+            <p></p>
             <Input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} />
+            <p></p>
             <Input type="password" placeholder="PIN" value={pin} onChange={(e) => setPin(e.target.value)} />
+            <p></p>
             <Button className="w-full" onClick={handleLogin}>Login</Button>
         </div>
     );
