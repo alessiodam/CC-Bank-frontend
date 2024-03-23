@@ -2,6 +2,16 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import "./page.css";
+import {
+    Table,
+    TableBody,
+    TableCaption,
+    TableCell,
+    TableFooter,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table"
 
 interface Transaction {
     id: number;
@@ -44,7 +54,7 @@ const DashboardPage = () => {
         const fetchBalance = async () => {
             try {
                 const response = await axios.get('http://localhost:8123/api/v1/balance');
-                setBalance(response.data.balance);
+                setBalance(response.data);
             } catch (error) {
                 console.error('Error fetching balance:', error);
             }
@@ -71,13 +81,13 @@ const DashboardPage = () => {
         event.preventDefault();
         const targetUsername = event.currentTarget.targetUsername.value;
         const amount = event.currentTarget.amount.value;
-    
+
         try {
             const response = await axios.post('http://localhost:8123/api/v1/transactions/new', {
                 username: targetUsername,
                 amount: amount,
             });
-    
+
             console.log('Transaction created:', response.data);
         } catch (error) {
             console.error('Error creating transaction:', error);
@@ -93,23 +103,32 @@ const DashboardPage = () => {
                 <h2>Balance: {balance}</h2>
             </div>
 
-            <h2>Recent Transactions:</h2>
-            <ul>
-                {transactions.map((transaction) => (
-                    <li key={transaction.id}>
-                        From: {transaction.from_user}
-                        To: {transaction.to_user}
-                        Amount: {transaction.amount}
-                    </li>
-                ))}
-            </ul>
-
             <h2>Create Transaction:</h2>
             <form onSubmit={handleCreateTransaction}>
                 <input type="text" name="targetUsername" placeholder="Target Username" required />
                 <input type="number" name="amount" placeholder="Amount" required />
                 <button type="submit">Create Transaction</button>
             </form>
+
+            <Table>
+                <TableCaption>A list of your recent transactions.</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead className="w-[100px]">From</TableHead>
+                    <TableHead>To</TableHead>
+                    <TableHead>Amount</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {transactions.map((transaction) => (
+                    <TableRow key={transaction.id}>
+                        <TableCell className="font-medium">{transaction.from_user}</TableCell>
+                        <TableCell>{transaction.to_user}</TableCell>
+                        <TableCell>{transaction.amount}</TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
         </div>
     );
 };
