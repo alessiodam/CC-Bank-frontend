@@ -104,11 +104,11 @@ const DashboardPage = () => {
         setTransactionValues({ ...transactionValues, amount: parseInt(event.target.value) });
     };
 
-    const submitNewTransaction = async (values: { username: string, amount: string }) => {
+    const submitNewTransaction = async () => {
         try {
             const response = await axios.post('https://ccbank.tkbstudios.com/api/v1/transactions/new', {
-                username: values.username,
-                amount: parseInt(values.amount),
+                username: transactionValues.username,
+                amount: transactionValues.amount,
             });
     
             if (response.status === 200) {
@@ -152,6 +152,7 @@ const DashboardPage = () => {
                                 id="username"
                                 defaultValue="TKB_Studios"
                                 className="col-span-3"
+                                onChange={handleUsernameChange}
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -165,11 +166,12 @@ const DashboardPage = () => {
                                 type="number"
                                 step="0.01"
                                 min="0.01"
+                                onChange={handleAmountChange}
                             />
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button type="submit" onClick={() => submitNewTransaction(transactionValues)}>Send coins</Button>
+                        <Button type="submit" onClick={() => submitNewTransaction()}>Send coins</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
