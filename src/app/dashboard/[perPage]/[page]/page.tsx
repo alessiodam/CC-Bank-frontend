@@ -268,16 +268,45 @@ function RenderPagination({
     <Pagination>
       <PaginationContent>
         <PaginationItem>
-          <PaginationPrevious href="#" />
+          {currentPage == 1 ? (
+            <PaginationPrevious className="pointer-events-none text-zinc-500" />
+          ) : (
+            <PaginationPrevious href={String(currentPage + 1)} />
+          )}
         </PaginationItem>
+        {currentPage > 2 && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
+        {currentPage - 1 > 0 && (
+          <PaginationItem>
+            <PaginationLink href={String(currentPage - 1)}>
+              {currentPage - 1}
+            </PaginationLink>
+          </PaginationItem>
+        )}
         <PaginationItem>
-          <PaginationLink href="#">1</PaginationLink>
+          <PaginationLink href="#">{currentPage}</PaginationLink>
         </PaginationItem>
+        {currentPage + 1 <= totalPages && (
+          <PaginationItem>
+            <PaginationLink href={String(currentPage + 1)}>
+              {currentPage + 1}
+            </PaginationLink>
+          </PaginationItem>
+        )}
+        {currentPage + 2 <= totalPages && (
+          <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )}
         <PaginationItem>
-          <PaginationEllipsis />
-        </PaginationItem>
-        <PaginationItem>
-          <PaginationNext href="#" />
+          {currentPage == totalPages ? (
+            <PaginationNext className="pointer-events-none text-zinc-500" />
+          ) : (
+            <PaginationNext href={String(currentPage + 1)} />
+          )}
         </PaginationItem>
       </PaginationContent>
     </Pagination>
