@@ -250,14 +250,14 @@ function RenderPagination({
   perPage: string;
 }) {
   if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
-    window.location.href = "/dashboard/1/15";
+    window.location.href = "/dashboard/15/1";
   }
 
   const currentPage = Number(currentPageString),
     perPage = Number(perPageString);
 
   if (currentPage > totalTransactions / perPage) {
-    window.location.href = "/dashboard/1/15";
+    window.location.href = "/dashboard/15/1";
   }
 
   const totalPages = Math.ceil(totalTransactions / perPage);

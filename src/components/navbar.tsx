@@ -145,7 +145,7 @@ function NavButtons({
           <>
             <NavItem fullWidth={fullWidth}>
               <NavButton fullWidth={fullWidth}>
-                <Link href="/dashboard/1/15">Dashboard</Link>
+                <Link href="/dashboard/15/1">Dashboard</Link>
               </NavButton>
             </NavItem>
             <NavItem fullWidth={fullWidth}>
