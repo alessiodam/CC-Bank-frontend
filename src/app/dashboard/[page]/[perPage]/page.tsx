@@ -86,30 +86,40 @@ function BalanceCounter({
           // digit represents the final position of the digit, index
           return (
             <span key={index} className="flex h-9">
-              <span
-                className="flex flex-col h-fit ease-out"
-                style={
-                  {
-                    transform: `translateY(-${
-                      isLoaded
-                        ? (Number(digit) / (index + 1)) * 10 +
-                          (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
-                        : 0
-                    }%)`,
-                    transition: "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
-                  } as React.CSSProperties
+              {(() => {
+                if (isNaN(Number(digit))) {
+                  return <span>.</span>;
                 }
-              >
-                {
-                  // put Digits for each digit but put more for each digit
-                  // eg: index 0 = 1,2,3,4,5,6,7,8,9,0
-                  // index 1 = 1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0
-                  // you get the idea
-                  Array.from({ length: index + 1 }).map((_, i) => {
-                    return <Digits key={i} />;
-                  })
-                }
-              </span>
+
+                // Number animation
+                return (
+                  <span
+                    className="flex flex-col h-fit ease-out"
+                    style={
+                      {
+                        transform: `translateY(-${
+                          isLoaded
+                            ? (Number(digit) / (index + 1)) * 10 +
+                              (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
+                            : 0
+                        }%)`,
+                        transition:
+                          "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
+                      } as React.CSSProperties
+                    }
+                  >
+                    {
+                      // put Digits for each digit but put more for each digit
+                      // eg: index 0 = 1,2,3,4,5,6,7,8,9,0
+                      // index 1 = 1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9,0
+                      // you get the idea
+                      Array.from({ length: index + 1 }).map((_, i) => {
+                        return <Digits key={i} />;
+                      })
+                    }
+                  </span>
+                );
+              })()}
             </span>
           );
         })}
