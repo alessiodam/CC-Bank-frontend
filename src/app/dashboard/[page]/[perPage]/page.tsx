@@ -76,6 +76,7 @@ function BalanceCounter({
       );
     });
   }
+
   return (
     <span className="flex gap-2 overflow-hidden">
       {balance
@@ -140,7 +141,7 @@ export default function Dashboard({
           "https://ccbank.tkbstudios.com/api/v1/balance",
           {
             headers: headers,
-          },
+          }
         );
 
         if (response.status === 200) {
@@ -155,7 +156,7 @@ export default function Dashboard({
           setTimeout(() => {
             // wait for sonner to load
             toast.error(
-              "Invalid session token. Please log in again. This happens when you log in from somewhere else",
+              "Invalid session token. Please log in again. This happens when you log in from somewhere else"
             );
             router.push("/");
           }, 100);
