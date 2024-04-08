@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { ArrowUpRight, DollarSign } from "lucide-react";
+import { ArrowUpRight, DollarSign, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +21,14 @@ import {
 import { useEffect, useState } from "react";
 import { deleteCookie, getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import {
   Pagination,
@@ -32,23 +39,74 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import ITransaction from "@/lib/types/ITransactions";
 
 function TransactionRow({
-  date,
-  user,
+  from_user,
+  to_user,
   amount,
-}: {
-  date: Date;
-  user: string;
-  amount: string;
-}): JSX.Element {
+  id,
+  note,
+  date,
+  tax,
+}: ITransaction): JSX.Element {
   return (
     <TableRow>
-      <TableCell className="font-medium">
-        {new Date(date).toLocaleDateString()}
+      <TableCell>{id}</TableCell>
+      <TableCell>{from_user}</TableCell>
+      <TableCell>{to_user}</TableCell>
+      <TableCell>{amount}</TableCell>
+      <TableCell>{tax}</TableCell>
+      <TableCell>{new Date(date).toLocaleString()}</TableCell>
+      <TableCell>
+        <Dialog>
+          <DialogTrigger asChild>
+            <Button size={"icon"}>
+              <Search className="h-[1.2rem] w-[1.2rem]" />
+            </Button>
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Transaction from {from_user} to {to_user}
+              </DialogTitle>
+            </DialogHeader>
+
+            <div className="p-4 border rounded-md">
+              <p className="flex justify-between">
+                <span>From:</span>
+                <span>{from_user}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>To:</span>
+                <span>{to_user}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Note:</span>
+                <span>{note}</span>
+              </p>
+              <br />
+              <p className="flex justify-between">
+                <span>Transaction Fee (Tax):</span>
+                <span>{tax}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Amount:</span>
+                <span>{amount}</span>
+              </p>
+              <br />
+              <p className="flex justify-between">
+                <span>ID:</span>
+                <span>{id}</span>
+              </p>
+              <p className="flex justify-between">
+                <span>Date:</span>
+                <span>{new Date(date).toLocaleString()}</span>
+              </p>
+            </div>
+          </DialogContent>
+        </Dialog>
       </TableCell>
-      <TableCell>{user}</TableCell>
-      <TableCell className="text-right">{amount}</TableCell>
     </TableRow>
   );
 }
@@ -136,6 +194,7 @@ export default function Dashboard({
   const [isLoaded, setIsLoaded] = useState(false);
   const [balance, setBalance] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
+  const [transactions, setTransactions] = useState<ITransaction[]>([]);
 
   useEffect(() => {
     (async () => {
@@ -181,8 +240,51 @@ export default function Dashboard({
         );
         if (transactionCountResponse.status === 200) {
           const data = await transactionCountResponse.json();
-          // setTotalTransactions(data.count);
+          setTotalTransactions(data.count);
           console.log("data:", data);
+        }
+
+        const transactionsResponse = await fetch(
+          `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${params.perPage}&page=${params.page}`,
+          {
+            headers: headers,
+          }
+        );
+
+        if (transactionsResponse.status == 200) {
+          let data = await transactionsResponse.json();
+
+          let newTransactions: ITransaction[] = [];
+
+          data.forEach(
+            (transaction: {
+              from_user: string;
+              to_user: string;
+              amount: string;
+              id: number;
+              note: string;
+              date: string;
+            }) => {
+              let newTransaction: ITransaction = {
+                from_user: transaction.from_user,
+                to_user: transaction.to_user,
+                amount: transaction.amount,
+                id: transaction.id,
+                note: transaction.note,
+                date: transaction.date,
+                tax: "0",
+              };
+
+              // add tax 2.5%
+              newTransaction.tax = String(
+                (Number(transaction.amount) * 0.025) / 100
+              );
+
+              newTransactions.push(newTransaction);
+            }
+          );
+
+          setTransactions(newTransactions);
         }
       } else {
         setTimeout(() => {
@@ -192,7 +294,7 @@ export default function Dashboard({
         }, 100);
       }
     })();
-  }, [router]);
+  }, [router, params.perPage, params.page]);
 
   return (
     <div className="flex w-full flex-col px-4 md:px-6">
@@ -234,12 +336,29 @@ export default function Dashboard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Date</TableHead>
+                  <TableHead>ID</TableHead>
+                  <TableHead>From</TableHead>
                   <TableHead>To</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Paid tax</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Inspect</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>{}</TableBody>
+              <TableBody>
+                {transactions.map((transaction) => (
+                  <TransactionRow
+                    key={transaction.id}
+                    from_user={transaction.from_user}
+                    to_user={transaction.to_user}
+                    amount={transaction.amount}
+                    id={transaction.id}
+                    note={transaction.note}
+                    date={transaction.date}
+                    tax={transaction.tax}
+                  />
+                ))}
+              </TableBody>
             </Table>
             <br />
             <RenderPagination
