@@ -21,7 +21,7 @@ export default function Home() {
   const [isProcessing, setProcessing] = React.useState(false);
 
   const isRegistered =
-    searchParams.get("action") == ("registered" || "loggedIn");
+    searchParams.get("action") == ("registered" || "loggedin");
 
   if (isRegistered) {
     // Timeout for toast animation to load
