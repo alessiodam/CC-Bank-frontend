@@ -25,7 +25,7 @@ import { deleteCookie } from "cookies-next";
 import Link from "next/link";
 
 export function RegisterButton(
-  { fullWidth }: { fullWidth?: boolean } = { fullWidth: false }
+  { fullWidth }: { fullWidth?: boolean } = { fullWidth: false },
 ) {
   const isDesktop = window.innerWidth > 1024;
 
@@ -106,7 +106,7 @@ export function RegisterButton(
   );
 }
 export function LoginButton(
-  { fullWidth }: { fullWidth?: boolean } = { fullWidth: false }
+  { fullWidth }: { fullWidth?: boolean } = { fullWidth: false },
 ) {
   const [isLoginDialogOpen, setLoginDialogOpen] = React.useState(false);
   const isDesktop = window.innerWidth > 1024;
@@ -156,7 +156,7 @@ export function LoginButton(
 }
 
 export function LogoutButton(
-  { fullWidth }: { fullWidth?: boolean } = { fullWidth: false }
+  { fullWidth }: { fullWidth?: boolean } = { fullWidth: false },
 ) {
   const isDesktop = window.innerWidth > 1024;
 

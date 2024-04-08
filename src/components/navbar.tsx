@@ -87,7 +87,7 @@ function NavButtons({
   isLoaded: boolean;
 }) {
   function NavItem(
-    props: React.PropsWithChildren<{ fullWidth?: boolean }>
+    props: React.PropsWithChildren<{ fullWidth?: boolean }>,
   ): JSX.Element {
     const { fullWidth, children } = props;
 
@@ -105,7 +105,7 @@ function NavButtons({
   }
 
   function NavButton(
-    props: React.PropsWithChildren<{ fullWidth?: boolean }>
+    props: React.PropsWithChildren<{ fullWidth?: boolean }>,
   ): JSX.Element {
     const { fullWidth, children } = props;
 
