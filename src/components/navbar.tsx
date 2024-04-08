@@ -13,7 +13,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Loader2, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { hasCookie } from "cookies-next";
 import { RegisterButton, LoginButton, LogoutButton } from "@/lib/AuthButtons";
 
@@ -87,7 +87,7 @@ function NavButtons({
   isLoaded: boolean;
 }) {
   function NavItem(
-    props: React.PropsWithChildren<{ fullWidth?: boolean }>,
+    props: React.PropsWithChildren<{ fullWidth?: boolean }>
   ): JSX.Element {
     const { fullWidth, children } = props;
 
@@ -105,7 +105,7 @@ function NavButtons({
   }
 
   function NavButton(
-    props: React.PropsWithChildren<{ fullWidth?: boolean }>,
+    props: React.PropsWithChildren<{ fullWidth?: boolean }>
   ): JSX.Element {
     const { fullWidth, children } = props;
 
