@@ -23,6 +23,7 @@ import { deleteCookie, getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogHeader,
@@ -40,6 +41,16 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import ITransaction from "@/lib/types/ITransactions";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
 
 function TransactionRow({
   from_user,
@@ -52,60 +63,125 @@ function TransactionRow({
 }: ITransaction): JSX.Element {
   return (
     <TableRow>
-      <TableCell>{id}</TableCell>
-      <TableCell>{from_user}</TableCell>
+      <TableCell className="max-sm:hidden">{id}</TableCell>
+      <TableCell className="max-sm:hidden">{from_user}</TableCell>
       <TableCell>{to_user}</TableCell>
-      <TableCell>{amount}</TableCell>
-      <TableCell>{tax}</TableCell>
-      <TableCell>{new Date(date).toLocaleString()}</TableCell>
+      <TableCell className="max-sm:hidden">{amount}</TableCell>
+      <TableCell className="max-md:hidden">{tax}</TableCell>
+      <TableCell className="max-lg:hidden">
+        {new Date(date).toLocaleString()}
+      </TableCell>
       <TableCell>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size={"icon"}>
-              <Search className="h-[1.2rem] w-[1.2rem]" />
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                Transaction from {from_user} to {to_user}
-              </DialogTitle>
-            </DialogHeader>
+        <div className="flex justify-end">
+          {(() => {
+            const isDesktop = window.innerWidth > 1024;
 
-            <div className="p-4 border rounded-md">
-              <p className="flex justify-between">
-                <span>From:</span>
-                <span>{from_user}</span>
-              </p>
-              <p className="flex justify-between">
-                <span>To:</span>
-                <span>{to_user}</span>
-              </p>
-              <p className="flex justify-between">
-                <span>Note:</span>
-                <span>{note}</span>
-              </p>
-              <br />
-              <p className="flex justify-between">
-                <span>Transaction Fee (Tax):</span>
-                <span>{tax}</span>
-              </p>
-              <p className="flex justify-between">
-                <span>Amount:</span>
-                <span>{amount}</span>
-              </p>
-              <br />
-              <p className="flex justify-between">
-                <span>ID:</span>
-                <span>{id}</span>
-              </p>
-              <p className="flex justify-between">
-                <span>Date:</span>
-                <span>{new Date(date).toLocaleString()}</span>
-              </p>
-            </div>
-          </DialogContent>
-        </Dialog>
+            if (isDesktop)
+              return (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button size={"icon"}>
+                      <Search className="h-[1.2rem] w-[1.2rem]" />
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>
+                        Transaction from {from_user} to {to_user}
+                      </DialogTitle>
+                    </DialogHeader>
+                    <div className="p-4 border rounded-md">
+                      <p className="flex justify-between">
+                        <span>From:</span>
+                        <span>{from_user}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>To:</span>
+                        <span>{to_user}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>Note:</span>
+                        <span>{note}</span>
+                      </p>
+                      <br />
+                      <p className="flex justify-between">
+                        <span>Transaction Fee (Tax):</span>
+                        <span>{tax}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>Amount:</span>
+                        <span>{amount}</span>
+                      </p>
+                      <br />
+                      <p className="flex justify-between">
+                        <span>ID:</span>
+                        <span>{id}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>Date:</span>
+                        <span>{new Date(date).toLocaleString()}</span>
+                      </p>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              );
+
+            return (
+              <Drawer>
+                <DrawerTrigger asChild>
+                <Button size={"icon"}>
+                      <Search className="h-[1.2rem] w-[1.2rem]" />
+                    </Button>
+                </DrawerTrigger>
+                <DrawerContent>
+                  <DrawerHeader>
+                    <DrawerTitle>
+                      Transaction from {from_user} to {to_user}
+                    </DrawerTitle>
+                  </DrawerHeader>
+                  <br />
+                  <div className="container">
+                    <div className="p-4 border rounded-md">
+                      <p className="flex justify-between">
+                        <span>From:</span>
+                        <span>{from_user}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>To:</span>
+                        <span>{to_user}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>Note:</span>
+                        <span>{note}</span>
+                      </p>
+                      <br />
+                      <p className="flex justify-between">
+                        <span>Transaction Fee (Tax):</span>
+                        <span>{tax}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>Amount:</span>
+                        <span>{amount}</span>
+                      </p>
+                      <br />
+                      <p className="flex justify-between">
+                        <span>ID:</span>
+                        <span>{id}</span>
+                      </p>
+                      <p className="flex justify-between">
+                        <span>Date:</span>
+                        <span>{new Date(date).toLocaleString()}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <DrawerFooter>
+                    <DrawerClose />
+                  </DrawerFooter>
+                </DrawerContent>
+              </Drawer>
+            );
+          })()}
+        </div>
       </TableCell>
     </TableRow>
   );
@@ -336,13 +412,13 @@ export default function Dashboard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>From</TableHead>
+                  <TableHead className="max-sm:hidden">ID</TableHead>
+                  <TableHead className="max-sm:hidden">From</TableHead>
                   <TableHead>To</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Paid tax</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Inspect</TableHead>
+                  <TableHead className="max-sm:hidden">Amount</TableHead>
+                  <TableHead className="max-md:hidden">Paid tax</TableHead>
+                  <TableHead className="max-lg:hidden">Date</TableHead>
+                  <TableHead className="text-right">Inspect</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
