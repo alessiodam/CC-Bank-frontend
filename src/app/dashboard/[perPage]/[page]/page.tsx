@@ -1,6 +1,5 @@
 "use client";
-import Link from "next/link";
-import { ArrowUpRight, DollarSign, Search } from "lucide-react";
+import { DollarSign, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -23,9 +22,7 @@ import { deleteCookie, getCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -45,12 +42,13 @@ import {
   Drawer,
   DrawerClose,
   DrawerContent,
-  DrawerDescription,
   DrawerFooter,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { CreateTransactionButton } from "@/lib/TransactionButtons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function TransactionRow({
   from_user,
@@ -271,6 +269,29 @@ export default function Dashboard({
   const [balance, setBalance] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
+
+  async function fetchTransactions() {
+    setIsTransactionsLoading(true);
+    const headers = new Headers();
+    const sessionToken = getCookie("session_token");
+    if (sessionToken) {
+      headers.append("Session-Token", sessionToken);
+    }
+
+    const transactionsResponse = await fetch(
+      `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${params.perPage}&page=${params.page}`,
+      {
+        headers: headers,
+      },
+    );
+
+    if (transactionsResponse.status == 200) {
+      let data = await transactionsResponse.json();
+      setTransactions(data);
+      setIsTransactionsLoading(false);
+    }
+  }
 
   useEffect(() => {
     (async () => {
@@ -320,17 +341,7 @@ export default function Dashboard({
           console.log("data:", data);
         }
 
-        const transactionsResponse = await fetch(
-          `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${params.perPage}&page=${params.page}`,
-          {
-            headers: headers,
-          },
-        );
-
-        if (transactionsResponse.status == 200) {
-          let data = await transactionsResponse.json();
-          setTransactions(data);
-        }
+        fetchTransactions();
       } else {
         setTimeout(() => {
           // wait for sonner to load
@@ -346,7 +357,7 @@ export default function Dashboard({
       <main className="flex flex-1 flex-col gap-4 md:gap-8 md:p-8 p-4 container">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-lg font-medium">Total Balance</CardTitle>
+            <CardTitle className="text-lg font-medium">Balance</CardTitle>
             <div className="flex items-center text-muted-foreground">
               <DollarSign className="h-4 w-4" />
               OKU
@@ -363,47 +374,58 @@ export default function Dashboard({
           </CardContent>
         </Card>
         <Card className="xl:col-span-2">
-          <CardHeader className="flex flex-row items-center">
+          <CardHeader className="flex flex-row items-center justify-between">
             <div className="grid gap-2">
               <CardTitle>Transactions</CardTitle>
               <CardDescription>
                 A list of all recent transactions
               </CardDescription>
             </div>
-            <Button asChild size="sm" className="ml-auto gap-1">
-              <Link href="#">
-                View All
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </Button>
+            <CreateTransactionButton
+              setBalance={setBalance}
+              isDesktop={window.innerWidth > 1024}
+              fetchTransactions={fetchTransactions}
+            />
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="max-sm:hidden">ID</TableHead>
-                  <TableHead className="max-sm:hidden">From</TableHead>
+                  <TableHead>ID</TableHead>
+                  <TableHead>From</TableHead>
                   <TableHead>To</TableHead>
-                  <TableHead className="max-sm:hidden">Amount</TableHead>
-                  <TableHead className="max-md:hidden">Paid tax</TableHead>
-                  <TableHead className="max-lg:hidden">Date</TableHead>
-                  <TableHead className="text-right">Inspect</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Paid tax</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Inspect</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <TransactionRow
-                    key={transaction.id}
-                    from_user={transaction.from_user}
-                    to_user={transaction.to_user}
-                    amount={transaction.amount}
-                    id={transaction.id}
-                    note={transaction.note}
-                    date={transaction.date}
-                    tax={transaction.tax}
-                  />
-                ))}
-              </TableBody>
+              {isTransactionsLoading ? (
+                <TableBody>
+                  {Array.from({ length: 10 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell colSpan={6}>
+                        <Skeleton className="h-6" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              ) : (
+                <TableBody>
+                  {transactions.map(transaction => (
+                    <TransactionRow
+                      key={transaction.id}
+                      from_user={transaction.from_user}
+                      to_user={transaction.to_user}
+                      amount={transaction.amount}
+                      id={transaction.id}
+                      note={transaction.note}
+                      date={transaction.date}
+                      tax={transaction.tax}
+                    />
+                  ))}
+                </TableBody>
+              )}
             </Table>
             <br />
             <RenderPagination
