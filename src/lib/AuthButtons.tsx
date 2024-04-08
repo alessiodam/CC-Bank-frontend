@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/drawer";
 import { LoginForm } from "./LoginForm";
 import { deleteCookie } from "cookies-next";
+import Link from "next/link";
 
 export function RegisterButton(
   { fullWidth }: { fullWidth?: boolean } = { fullWidth: false }
@@ -43,12 +44,25 @@ export function RegisterButton(
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>just read the instructions next time lol</DialogTitle>
+            <DialogTitle>Redirecting to TKBAuth</DialogTitle>
             <DialogDescription>
-              if you were to read the instructions, you would know that you need
-              to create an account in-game first.
+              Registering is on the API end of Bank of ComputerCraft. This means
+              you&apos;ll be redirected to
+              https://ccbank.tkbstudios.com/api/v1/webauth
             </DialogDescription>
           </DialogHeader>
+          <div className="flex gap-4">
+            <DrawerClose asChild>
+              <Button variant={"secondary"} className="flex-1">
+                nvm
+              </Button>
+            </DrawerClose>
+            <Button asChild className="flex-1">
+              <Link href="https://ccbank.tkbstudios.com/api/v1/webauth">
+                ok!
+              </Link>
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     );
@@ -67,12 +81,23 @@ export function RegisterButton(
       </DrawerTrigger>
       <DrawerContent>
         <DrawerHeader>
-          <DrawerTitle>just read the instructions next time lol</DrawerTitle>
+          <DrawerTitle>Redirecting to TKBAuth</DrawerTitle>
           <DrawerDescription>
-            if you were to read the instructions, you would know that you need
-            to create an account in-game first.
+            Registering is on the API end of Bank of ComputerCraft. This means
+            you&apos;ll be redirected to
+            https://ccbank.tkbstudios.com/api/v1/webauth
           </DrawerDescription>
         </DrawerHeader>
+        <div className="flex gap-4 container">
+          <DrawerClose asChild>
+            <Button variant={"secondary"} className="flex-1">
+              nvm
+            </Button>
+          </DrawerClose>
+          <Button asChild className="flex-1">
+            <Link href="https://ccbank.tkbstudios.com/api/v1/webauth">ok!</Link>
+          </Button>
+        </div>
         <DrawerFooter>
           <DrawerClose />
         </DrawerFooter>
