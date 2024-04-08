@@ -229,11 +229,12 @@ function BalanceCounter({
                     className="flex flex-col h-fit ease-out"
                     style={
                       {
-                        transform: `translateY(-${isLoaded
-                          ? (Number(digit) / (index + 1)) * 10 +
-                          (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
-                          : 0
-                          }%)`,
+                        transform: `translateY(-${
+                          isLoaded
+                            ? (Number(digit) / (index + 1)) * 10 +
+                              (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
+                            : 0
+                        }%)`,
                         transition:
                           "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
                       } as React.CSSProperties
@@ -259,13 +260,10 @@ function BalanceCounter({
 }
 
 export default function Dashboard({
-  searchParams,
+  params,
 }: {
-  searchParams: { [key: string]: string | undefined }
+  params: { page: string; perPage: string };
 }) {
-  const perPage = searchParams["perPage"] || "15";
-  const page = searchParams["page"] || "1";
-
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -282,7 +280,7 @@ export default function Dashboard({
     }
 
     const transactionsResponse = await fetch(
-      `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${perPage}&page=${page}`,
+      `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${params.perPage}&page=${params.page}`,
       {
         headers: headers,
       },
@@ -352,7 +350,7 @@ export default function Dashboard({
         }, 100);
       }
     })();
-  }, [router]);
+  }, [router, params.perPage, params.page]);
 
   return (
     <div className="flex w-full flex-col px-4 md:px-6">
@@ -431,9 +429,9 @@ export default function Dashboard({
             </Table>
             <br />
             <RenderPagination
-              currentPage={page}
+              currentPage={params.page}
               totalTransactions={totalTransactions}
-              perPage={perPage}
+              perPage={params.perPage}
             />
           </CardContent>
         </Card>
@@ -456,7 +454,7 @@ function RenderPagination({
   }
 
   if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
-    window.location.href = "/dashboard";
+    window.location.href = "/dashboard/15/1";
   }
 
   const currentPage = Number(currentPageString),
@@ -469,14 +467,6 @@ function RenderPagination({
 
   console.log(totalPages, currentPage, totalTransactions, perPage);
 
-  const createPaginatedURL = (page: string) => {
-    const url = new URL(window.location.href);
-
-    url.searchParams.set("page", page);
-
-    return url.toString();
-  }
-
   return (
     <Pagination>
       <PaginationContent>
@@ -484,7 +474,7 @@ function RenderPagination({
           {currentPage == 1 ? (
             <PaginationPrevious className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationPrevious href={createPaginatedURL(String(currentPage - 1))} />
+            <PaginationPrevious href={String(currentPage + 1)} />
           )}
         </PaginationItem>
         {currentPage > 2 && (
@@ -494,7 +484,7 @@ function RenderPagination({
         )}
         {currentPage - 1 > 0 && (
           <PaginationItem>
-            <PaginationLink href={createPaginatedURL(String(currentPage - 1))}>
+            <PaginationLink href={String(currentPage - 1)}>
               {currentPage - 1}
             </PaginationLink>
           </PaginationItem>
@@ -504,7 +494,7 @@ function RenderPagination({
         </PaginationItem>
         {currentPage + 1 <= totalPages && (
           <PaginationItem>
-            <PaginationLink href={createPaginatedURL(String(currentPage + 1))}>
+            <PaginationLink href={String(currentPage + 1)}>
               {currentPage + 1}
             </PaginationLink>
           </PaginationItem>
@@ -518,7 +508,7 @@ function RenderPagination({
           {currentPage == totalPages ? (
             <PaginationNext className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationNext href={createPaginatedURL(String(currentPage + 1))} />
+            <PaginationNext href={String(currentPage + 1)} />
           )}
         </PaginationItem>
       </PaginationContent>
