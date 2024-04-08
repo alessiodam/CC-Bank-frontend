@@ -38,7 +38,7 @@ function TransactionRow({
   user,
   amount,
 }: {
-  date: number;
+  date: Date;
   user: string;
   amount: string;
 }): JSX.Element {
