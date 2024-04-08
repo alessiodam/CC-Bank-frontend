@@ -135,27 +135,28 @@ export default function Dashboard({
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
   const [balance, setBalance] = useState(0);
+  const [totalTransactions, setTotalTransactions] = useState(0);
 
   useEffect(() => {
     (async () => {
       let isSessionTokenSet = getCookie("session_token");
       if (isSessionTokenSet) {
-        // send api request to check if the token is valid
         const headers = new Headers();
         const sessionToken = getCookie("session_token");
         if (sessionToken) {
           headers.append("Session-Token", sessionToken);
         }
 
-        const response = await fetch(
+        // request balance
+        const balanceResponse = await fetch(
           "https://ccbank.tkbstudios.com/api/v1/balance",
           {
             headers: headers,
           }
         );
 
-        if (response.status === 200) {
-          const data = await response.json();
+        if (balanceResponse.status === 200) {
+          const data = await balanceResponse.json();
           console.log(data);
           setBalance(data);
           setTimeout(() => {
@@ -171,6 +172,18 @@ export default function Dashboard({
             router.push("/");
           }, 100);
         }
+
+        const transactionCountResponse = await fetch(
+          "https://ccbank.tkbstudios.com/api/v1/transactions/count",
+          {
+            headers: headers,
+          }
+        );
+        if (transactionCountResponse.status === 200) {
+          const data = await transactionCountResponse.json();
+          // setTotalTransactions(data.count);
+          console.log("data:", data);
+        }
       } else {
         setTimeout(() => {
           // wait for sonner to load
@@ -179,7 +192,7 @@ export default function Dashboard({
         }, 100);
       }
     })();
-  });
+  }, [router]);
 
   return (
     <div className="flex w-full flex-col px-4 md:px-6">
@@ -231,7 +244,7 @@ export default function Dashboard({
             <br />
             <RenderPagination
               currentPage={params.page}
-              totalTransactions={15}
+              totalTransactions={totalTransactions}
               perPage={params.perPage}
             />
           </CardContent>
