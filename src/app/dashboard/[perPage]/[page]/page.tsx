@@ -129,9 +129,9 @@ function TransactionRow({
             return (
               <Drawer>
                 <DrawerTrigger asChild>
-                <Button size={"icon"}>
-                      <Search className="h-[1.2rem] w-[1.2rem]" />
-                    </Button>
+                  <Button size={"icon"}>
+                    <Search className="h-[1.2rem] w-[1.2rem]" />
+                  </Button>
                 </DrawerTrigger>
                 <DrawerContent>
                   <DrawerHeader>
@@ -329,38 +329,7 @@ export default function Dashboard({
 
         if (transactionsResponse.status == 200) {
           let data = await transactionsResponse.json();
-
-          let newTransactions: ITransaction[] = [];
-
-          data.forEach(
-            (transaction: {
-              from_user: string;
-              to_user: string;
-              amount: string;
-              id: number;
-              note: string;
-              date: string;
-            }) => {
-              let newTransaction: ITransaction = {
-                from_user: transaction.from_user,
-                to_user: transaction.to_user,
-                amount: transaction.amount,
-                id: transaction.id,
-                note: transaction.note,
-                date: transaction.date,
-                tax: "0",
-              };
-
-              // add tax 2.5%
-              newTransaction.tax = String(
-                (Number(transaction.amount) * 0.025) / 100
-              );
-
-              newTransactions.push(newTransaction);
-            }
-          );
-
-          setTransactions(newTransactions);
+          setTransactions(data);
         }
       } else {
         setTimeout(() => {
