@@ -152,7 +152,7 @@ export function LogoutButton(
           <DialogHeader>
             <DialogTitle>Logout</DialogTitle>
             <DialogDescription>
-              Are you sure logging out? You can always log back in.
+              Are you sure you want to log out? You can always log back in
             </DialogDescription>
           </DialogHeader>
           <br />
@@ -192,7 +192,7 @@ export function LogoutButton(
         <DrawerHeader>
           <DrawerTitle>Logout</DrawerTitle>
           <DrawerDescription>
-            Are you sure logging out? You can always log back in.
+            Are you sure you want to log out? You can always log back in
           </DrawerDescription>
         </DrawerHeader>
         <br />
