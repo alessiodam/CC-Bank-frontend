@@ -249,18 +249,22 @@ function RenderPagination({
   totalTransactions: number;
   perPage: string;
 }) {
+  if (totalTransactions < 0) {
+    console.error("totalTransactions is lower than 0");
+    return <p>An error occured.</p>;
+  }
+
   if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
     window.location.href = "/dashboard/15/1";
   }
 
   const currentPage = Number(currentPageString),
-    perPage = Number(perPageString);
+    perPage = Number(perPageString),
+    totalPages = Math.ceil(totalTransactions / perPage);
 
-  if (currentPage > totalTransactions / perPage) {
-    window.location.href = "/dashboard/15/1";
+  if (currentPage > totalPages) {
+    // window.location.href = "/dashboard/15/1";
   }
-
-  const totalPages = Math.ceil(totalTransactions / perPage);
 
   console.log(totalPages, currentPage, totalTransactions, perPage);
 
