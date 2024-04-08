@@ -88,7 +88,7 @@ export default function Home() {
                 <p>You are already logged in! 🎉🎉</p>
 
                 <Button asChild variant={"outline"}>
-                  <Link href="/dashboard/15/1">Dashboard</Link>
+                  <Link href="/dashboard">Dashboard</Link>
                 </Button>
               </div>
             ) : (
