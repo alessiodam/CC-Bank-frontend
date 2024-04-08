@@ -48,6 +48,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { CreateTransactionButton } from "@/lib/TransactionButtons";
+import { Skeleton } from "@/components/ui/skeleton";
 
 function TransactionRow({
   from_user,
@@ -268,8 +269,10 @@ export default function Dashboard({
   const [balance, setBalance] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
 
   async function fetchTransactions() {
+    setIsTransactionsLoading(true);
     const headers = new Headers();
     const sessionToken = getCookie("session_token");
     if (sessionToken) {
@@ -286,6 +289,7 @@ export default function Dashboard({
     if (transactionsResponse.status == 200) {
       let data = await transactionsResponse.json();
       setTransactions(data);
+      setIsTransactionsLoading(false);
     }
   }
 
@@ -387,29 +391,41 @@ export default function Dashboard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="max-sm:hidden">ID</TableHead>
-                  <TableHead className="max-sm:hidden">From</TableHead>
+                  <TableHead>ID</TableHead>
+                  <TableHead>From</TableHead>
                   <TableHead>To</TableHead>
-                  <TableHead className="max-sm:hidden">Amount</TableHead>
-                  <TableHead className="max-md:hidden">Paid tax</TableHead>
-                  <TableHead className="max-lg:hidden">Date</TableHead>
-                  <TableHead className="text-right">Inspect</TableHead>
+                  <TableHead>Amount</TableHead>
+                  <TableHead>Paid tax</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Inspect</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {transactions.map((transaction) => (
-                  <TransactionRow
-                    key={transaction.id}
-                    from_user={transaction.from_user}
-                    to_user={transaction.to_user}
-                    amount={transaction.amount}
-                    id={transaction.id}
-                    note={transaction.note}
-                    date={transaction.date}
-                    tax={transaction.tax}
-                  />
-                ))}
-              </TableBody>
+              {isTransactionsLoading ? (
+                <TableBody>
+                  {Array.from({ length: 10 }).map((_, index) => (
+                    <TableRow key={index}>
+                      <TableCell colSpan={6}>
+                        <Skeleton className="h-6" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              ) : (
+                <TableBody>
+                  {transactions.map(transaction => (
+                    <TransactionRow
+                      key={transaction.id}
+                      from_user={transaction.from_user}
+                      to_user={transaction.to_user}
+                      amount={transaction.amount}
+                      id={transaction.id}
+                      note={transaction.note}
+                      date={transaction.date}
+                      tax={transaction.tax}
+                    />
+                  ))}
+                </TableBody>
+              )}
             </Table>
             <br />
             <RenderPagination
