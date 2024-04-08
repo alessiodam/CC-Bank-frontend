@@ -6,6 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import React from "react";
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -34,6 +35,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
+        <SpeedInsights/>
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
