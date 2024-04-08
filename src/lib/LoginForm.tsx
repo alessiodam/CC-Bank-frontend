@@ -19,7 +19,7 @@ import {
 import { toast } from "sonner";
 
 const loginFormSchema = z.object({
-  username: z.string().nonempty("Username is required"),
+  username: z.string().min(1, "Username is required"),
   pin: z
     .string()
     .min(4, "PIN must be at least 4 characters long")
