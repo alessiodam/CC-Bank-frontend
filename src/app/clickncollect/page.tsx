@@ -112,7 +112,7 @@ function OrderRow({
                   <DialogContent>
                     <DialogHeader>
                       <DialogTitle>
-                        Buying {item_count} of {item} for {amount}
+                        Bought {item_count} of {item} for {amount * item_count}
                       </DialogTitle>
                     </DialogHeader>
                     <div className="p-4 border rounded-md">
@@ -161,7 +161,7 @@ function OrderRow({
                 <DrawerContent>
                   <DrawerHeader>
                     <DrawerTitle>
-                      Buying {item_count} of {item} for {amount}
+                      Bought {item_count} of {item} for {amount * item_count}
                     </DrawerTitle>
                   </DrawerHeader>
                   <br />
