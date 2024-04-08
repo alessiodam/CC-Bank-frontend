@@ -12,8 +12,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
 
 export default function Home() {
-  const searchParams = useSearchParams();
-
   const [isLogged, setIsLogged] = React.useState(false);
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [isLoginDialogOpen, setLoginDialogOpen] = React.useState(false);
