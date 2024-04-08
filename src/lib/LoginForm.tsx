@@ -75,7 +75,7 @@ export function LoginForm() {
     setCookie("session_token", data.session_token, { secure: true });
 
     // redirect to dashboard
-    window.location.href = "/dashboard/15/1";
+    window.location.href = "/dashboard";
   }
 
   return (
