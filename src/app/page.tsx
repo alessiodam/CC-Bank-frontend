@@ -10,7 +10,6 @@ import { FormDescription } from "@/components/ui/form";
 import { LoginButton, RegisterButton } from "../lib/AuthButtons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useSearchParams } from "next/navigation";
 
 export default function Home() {
   const searchParams = useSearchParams();
@@ -19,16 +18,6 @@ export default function Home() {
   const [isLoaded, setIsLoaded] = React.useState(false);
   const [isLoginDialogOpen, setLoginDialogOpen] = React.useState(false);
   const [isProcessing, setProcessing] = React.useState(false);
-
-  const isRegistered =
-    searchParams.get("action") == ("registered" || "loggedin");
-
-  if (isRegistered) {
-    // Timeout for toast animation to load
-    setTimeout(() => {
-      toast.success("Successfully registered! You can now log in.");
-    }, 100);
-  }
 
   useEffect(() => {
     (async () => {
