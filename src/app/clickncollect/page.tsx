@@ -46,9 +46,9 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { CreateTransactionButton } from "@/lib/TransactionButtons";
 import { Skeleton } from "@/components/ui/skeleton";
 import IOrder from "@/lib/types/IOrders";
+import { CreateOrderButton } from "@/lib/OrderButtons";
 
 const testingOrders = [
   {
@@ -228,23 +228,18 @@ export default function ClickNCollect() {
       headers.append("Session-Token", sessionToken);
     }
 
-    /*
-    const transactionsResponse = await fetch(
-      `https://ccbank.tkbstudios.com/api/v1/transactions/list`,
+    const ordersResponse = await fetch(
+      "https://ccbank.tkbstudios.com/api/v1/orders/list",
       {
         headers: headers,
       },
     );
 
-    if (transactionsResponse.status == 200) {
-      let data = await transactionsResponse.json();
-      setTransactions(data);
-      setIsTransactionsLoading(false);
+    if (ordersResponse.status == 200) {
+      let data = await ordersResponse.json();
+      setOrders(data);
+      setIsOrdersLoading(false);
     }
-    */
-
-    setOrders(testingOrders);
-    setIsOrdersLoading(false)
   }
 
   useEffect(() => {
@@ -283,14 +278,14 @@ export default function ClickNCollect() {
           }, 100);
         }
 
-        const transactionCountResponse = await fetch(
-          "https://ccbank.tkbstudios.com/api/v1/transactions/count",
+        const orderCountResponse = await fetch(
+          "https://ccbank.tkbstudios.com/api/v1/orders/count",
           {
             headers: headers,
           },
         );
-        if (transactionCountResponse.status === 200) {
-          const data = await transactionCountResponse.json();
+        if (orderCountResponse.status === 200) {
+          const data = await orderCountResponse.json();
           setTotalOrders(data.count);
           console.log("data:", data);
         }
@@ -310,17 +305,15 @@ export default function ClickNCollect() {
       <main className="flex flex-1 flex-col gap-4 md:gap-8 md:p-8 p-4 container">
         <Card className="xl:col-span-2">
           <CardHeader className="flex flex-row items-center justify-between">
-            <div className="grid gap-2">
+            <div className="grid gap-2 justify-between">
               <CardTitle>My Orders</CardTitle>
               <CardDescription>
                 A list of all recent orders
               </CardDescription>
             </div>
-            {/* <CreateTransactionButton
-              setBalance={setBalance}
-              isDesktop={window.innerWidth > 1024}
-              fetchTransactions={fetchTransactions}
-            /> */}
+            <CreateOrderButton
+              isDesktop={window.innerWidth > 1024} fetchOrders={fetchOrders}
+            />
           </CardHeader>
           <CardContent>
             <Table>
@@ -369,31 +362,27 @@ export default function ClickNCollect() {
 }
 function RenderPagination({
   currentPage: currentPageString,
-  totalTransactions,
+  totalOrders: totalOrders,
   perPage: perPageString,
 }: {
   currentPage: string;
-  totalTransactions: number;
+  totalOrders: number;
   perPage: string;
 }) {
-  if (totalTransactions < 0) {
-    console.error("totalTransactions is lower than 0");
+  if (totalOrders < 0) {
+    console.error("totalOrders is lower than 0");
     return <p>An error occured.</p>;
   }
 
   if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
-    window.location.href = "/dashboard/15/1";
+    window.location.reload();
   }
 
   const currentPage = Number(currentPageString),
     perPage = Number(perPageString),
-    totalPages = Math.ceil(totalTransactions / perPage);
+    totalPages = Math.ceil(totalOrders / perPage);
 
-  if (currentPage > totalPages) {
-    // window.location.href = "/dashboard/15/1";
-  }
-
-  console.log(totalPages, currentPage, totalTransactions, perPage);
+  console.log(totalPages, currentPage, totalOrders, perPage);
 
   return (
     <Pagination>
