@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
 import { deleteCookie, getCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +49,7 @@ import {
 } from "@/components/ui/drawer";
 import { CreateTransactionButton } from "@/lib/TransactionButtons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
 function TransactionRow({
   from_user,
@@ -229,11 +230,12 @@ function BalanceCounter({
                     className="flex flex-col h-fit ease-out"
                     style={
                       {
-                        transform: `translateY(-${isLoaded
-                          ? (Number(digit) / (index + 1)) * 10 +
-                          (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
-                          : 0
-                          }%)`,
+                        transform: `translateY(-${
+                          isLoaded
+                            ? (Number(digit) / (index + 1)) * 10 +
+                              (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
+                            : 0
+                        }%)`,
                         transition:
                           "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
                       } as React.CSSProperties
@@ -261,12 +263,15 @@ function BalanceCounter({
 export default function Dashboard({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined }
+  searchParams: { [key: string]: string | undefined };
 }) {
   const perPage = searchParams["perPage"] || "15";
   const page = searchParams["page"] || "1";
 
   const router = useRouter();
+  const [currentURL, setCurrentURL] = useState(
+    "https://ccbank.tkbstudios.com" + usePathname()
+  );
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
   const [balance, setBalance] = useState(0);
@@ -286,7 +291,7 @@ export default function Dashboard({
       `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${perPage}&page=${page}`,
       {
         headers: headers,
-      },
+      }
     );
 
     if (transactionsResponse.status == 200) {
@@ -298,6 +303,7 @@ export default function Dashboard({
 
   useEffect(() => {
     setIsDesktop(window.innerWidth > 1024);
+    setCurrentURL(window.location.href);
     (async () => {
       let isSessionTokenSet = getCookie("session_token");
       if (isSessionTokenSet) {
@@ -312,7 +318,7 @@ export default function Dashboard({
           "https://ccbank.tkbstudios.com/api/v1/balance",
           {
             headers: headers,
-          },
+          }
         );
 
         if (balanceResponse.status === 200) {
@@ -327,7 +333,7 @@ export default function Dashboard({
           setTimeout(() => {
             // wait for sonner to load
             toast.error(
-              "Invalid session token. Please log in again. This happens when you log in from somewhere else",
+              "Invalid session token. Please log in again. This happens when you log in from somewhere else"
             );
             router.push("/");
           }, 100);
@@ -337,7 +343,7 @@ export default function Dashboard({
           "https://ccbank.tkbstudios.com/api/v1/transactions/count",
           {
             headers: headers,
-          },
+          }
         );
         if (transactionCountResponse.status === 200) {
           const data = await transactionCountResponse.json();
@@ -416,7 +422,7 @@ export default function Dashboard({
                 </TableBody>
               ) : (
                 <TableBody>
-                  {transactions.map(transaction => (
+                  {transactions.map((transaction) => (
                     <TransactionRow
                       key={transaction.id}
                       from_user={transaction.from_user}
@@ -436,6 +442,8 @@ export default function Dashboard({
               currentPage={page}
               totalTransactions={totalTransactions}
               perPage={perPage}
+              router={router}
+              currentURL={currentURL}
             />
           </CardContent>
         </Card>
@@ -447,10 +455,14 @@ function RenderPagination({
   currentPage: currentPageString,
   totalTransactions,
   perPage: perPageString,
+  router,
+  currentURL,
 }: {
   currentPage: string;
   totalTransactions: number;
   perPage: string;
+  router: AppRouterInstance;
+  currentURL: string;
 }) {
   if (totalTransactions < 0) {
     console.error("totalTransactions is lower than 0");
@@ -458,7 +470,7 @@ function RenderPagination({
   }
 
   if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
-    window.location.href = "/dashboard";
+    router.push("/dashboard");
   }
 
   const currentPage = Number(currentPageString),
@@ -472,12 +484,13 @@ function RenderPagination({
   console.log(totalPages, currentPage, totalTransactions, perPage);
 
   const createPaginatedURL = (page: string) => {
-    const url = new URL(window.location.href);
+    console.log("pathname:", currentURL);
+    const url = new URL(currentURL);
 
     url.searchParams.set("page", page);
 
     return url.toString();
-  }
+  };
 
   return (
     <Pagination>
@@ -486,7 +499,9 @@ function RenderPagination({
           {currentPage == 1 ? (
             <PaginationPrevious className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationPrevious href={createPaginatedURL(String(currentPage - 1))} />
+            <PaginationPrevious
+              href={createPaginatedURL(String(currentPage - 1))}
+            />
           )}
         </PaginationItem>
         {currentPage > 2 && (
@@ -520,7 +535,9 @@ function RenderPagination({
           {currentPage == totalPages ? (
             <PaginationNext className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationNext href={createPaginatedURL(String(currentPage + 1))} />
+            <PaginationNext
+              href={createPaginatedURL(String(currentPage + 1))}
+            />
           )}
         </PaginationItem>
       </PaginationContent>
