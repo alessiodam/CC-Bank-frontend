@@ -268,6 +268,7 @@ export default function Dashboard({
 
   const router = useRouter();
   const [isLoaded, setIsLoaded] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [balance, setBalance] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
@@ -296,6 +297,7 @@ export default function Dashboard({
   }
 
   useEffect(() => {
+    setIsDesktop(window.innerWidth > 1024);
     (async () => {
       let isSessionTokenSet = getCookie("session_token");
       if (isSessionTokenSet) {
@@ -385,7 +387,7 @@ export default function Dashboard({
             </div>
             <CreateTransactionButton
               setBalance={setBalance}
-              isDesktop={window.innerWidth > 1024}
+              isDesktop={isDesktop}
               fetchTransactions={fetchTransactions}
             />
           </CardHeader>
