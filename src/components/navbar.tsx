@@ -11,8 +11,19 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import { RegisterButton, LoginButton, LogoutButton } from "@/lib/AuthButtons";
+import { RegisterButton, LoginButton } from "@/lib/AuthButtons";
 import { useSession } from "@/lib/session";
+import { cn } from "@/lib/utils";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChangePin } from "./ChangePin";
+import { useState } from "react";
 
 export function Navbar() {
   const { session } = useSession();
@@ -29,9 +40,6 @@ export function Navbar() {
             isLogged={session.status == "authenticated"}
             isLoaded={session.status != "loading"}
           />
-          <li>
-            <ThemeToggle alignment="end" />
-          </li>
         </ul>
         <div className="block sm:hidden">
           <MobileMenu
@@ -58,16 +66,12 @@ function MobileMenu({
           <Menu />
         </Button>
       </SheetTrigger>
-      <SheetContent>
-        <SheetHeader>
+      <SheetContent className="flex flex-col">
+        <SheetHeader className="border-b py-2">
           <SheetTitle>Bank Of ComputerCraft</SheetTitle>
         </SheetHeader>
-        <br />
-        <ul className="gap-4 flex flex-col items-center">
+        <ul className="gap-4 flex flex-col items-center h-full">
           <NavButtons isLogged={isLogged} fullWidth isLoaded={isLoaded} />
-          <li className="w-full">
-            <ThemeToggle fullWidth alignment="center" />
-          </li>
         </ul>
       </SheetContent>
     </Sheet>
@@ -84,17 +88,15 @@ function NavButtons({
   isLoaded: boolean;
 }) {
   function NavItem(
-    props: React.PropsWithChildren<{ fullWidth?: boolean }>,
+    props: React.PropsWithChildren<{ fullWidth?: boolean; className?: string }>,
   ): JSX.Element {
-    const { fullWidth, children } = props;
+    const { fullWidth, children, className } = props;
 
     return (
       <li
-        {...(fullWidth
-          ? {
-              className: "w-full",
-            }
-          : {})}
+        className={cn(className, {
+          "w-full": fullWidth,
+        })}
       >
         {children}
       </li>
@@ -110,11 +112,9 @@ function NavButtons({
       <Button
         variant="outline"
         asChild
-        {...(fullWidth
-          ? {
-              className: "w-full",
-            }
-          : {})}
+        className={cn({
+          "w-full": fullWidth,
+        })}
       >
         {children}
       </Button>
@@ -145,8 +145,11 @@ function NavButtons({
                 <Link href="/dashboard">Dashboard</Link>
               </NavButton>
             </NavItem>
-            <NavItem fullWidth={fullWidth}>
-              <LogoutButton fullWidth={fullWidth} />
+            <NavItem
+              className="h-full flex flex-col justify-end"
+              fullWidth={fullWidth}
+            >
+              <ProfileDropdown />
             </NavItem>
           </>
         ) : (
@@ -165,6 +168,41 @@ function NavButtons({
           <NavSkeleton />
         </>
       )}
+    </>
+  );
+}
+
+function ProfileDropdown() {
+  const { session, logout } = useSession();
+
+  const [changePinOpen, setChangePinOpen] = useState(false);
+
+  if (session.status != "authenticated") {
+    return null;
+  }
+
+  return (
+    <>
+      <ChangePin open={changePinOpen} setOpen={setChangePinOpen} />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button className="flex gap-2 truncate w-full" variant="outline">
+            <span className="flex-1 border-r pr-2 w-full text-muted-foreground font-mono text-sm">
+              ${session.user.balance}
+            </span>
+            <span className="flex-1 w-full">{session.user.username}</span>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-48">
+          <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuItem onClick={() => setChangePinOpen(true)}>
+            Change Pin
+          </DropdownMenuItem>
+          <ThemeToggle />
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={logout}>Logout</DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
     </>
   );
 }
