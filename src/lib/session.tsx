@@ -84,9 +84,6 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     updateSession();
   }, []);
 
-  useEffect(() => {
-  }, [session]);
-
   return (
     <SessionContext.Provider value={{ session, setSession }}>
       {children}
