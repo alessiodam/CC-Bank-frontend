@@ -60,12 +60,12 @@ function TransactionRow({
 }: ITransaction): JSX.Element {
   return (
     <TableRow>
-      <TableCell className="max-sm:hidden">{id}</TableCell>
-      <TableCell className="max-sm:hidden">{from_user}</TableCell>
+      <TableCell>{id}</TableCell>
+      <TableCell>{from_user}</TableCell>
       <TableCell>{to_user}</TableCell>
-      <TableCell className="max-sm:hidden">{amount}</TableCell>
-      <TableCell className="max-md:hidden">{tax}</TableCell>
-      <TableCell className="max-lg:hidden">
+      <TableCell>{amount}</TableCell>
+      <TableCell>{tax}</TableCell>
+      <TableCell>
         {new Date(date).toLocaleString()}
       </TableCell>
       <TableCell>
@@ -328,7 +328,7 @@ export default function Dashboard({
   useEffect(() => {
     fetchTransactions();
     fetchTransactionCount();
-  }, [session, fetchTransactionCount, fetchTransactions]);
+  }, [fetchTransactionCount, fetchTransactions]);
 
   if(session.status === "unauthenticated") {
     router.push("/");
