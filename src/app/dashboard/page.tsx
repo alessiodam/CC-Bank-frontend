@@ -1,6 +1,5 @@
 "use client";
 import { DollarSign, Search } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,8 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
-import { deleteCookie, getCookie } from "cookies-next";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
@@ -27,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import {
   Pagination,
   PaginationContent,
@@ -50,6 +47,7 @@ import {
 import { CreateTransactionButton } from "@/lib/TransactionButtons";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useSession } from "@/lib/session";
 
 function TransactionRow({
   from_user,
@@ -230,12 +228,7 @@ function BalanceCounter({
                     className="flex flex-col h-fit ease-out"
                     style={
                       {
-                        transform: `translateY(-${
-                          isLoaded
-                            ? (Number(digit) / (index + 1)) * 10 +
-                              (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
-                            : 0
-                        }%)`,
+                        transform: `translateY(-${isLoaded ? (Number(digit) / (index + 1)) * 10 + (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100) : 0}%)`,
                         transition:
                           "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
                       } as React.CSSProperties
@@ -268,99 +261,88 @@ export default function Dashboard({
   const perPage = searchParams["perPage"] || "15";
   const page = searchParams["page"] || "1";
 
+  const { session, setSession } = useSession();
+
   const router = useRouter();
   const [currentURL, setCurrentURL] = useState(
-    "https://ccbank.tkbstudios.com" + usePathname()
+    "https://ccbank.tkbstudios.com" + usePathname(),
   );
-  const [isLoaded, setIsLoaded] = useState(false);
+
   const [isDesktop, setIsDesktop] = useState(false);
-  const [balance, setBalance] = useState(0);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
+  const [balanceLoaded, setBalanceLoaded] = useState(false);
 
-  async function fetchTransactions() {
+  const fetchTransactions = useCallback(async () => {
     setIsTransactionsLoading(true);
-    const headers = new Headers();
-    const sessionToken = getCookie("session_token");
-    if (sessionToken) {
-      headers.append("Session-Token", sessionToken);
-    }
 
-    const transactionsResponse = await fetch(
+    if (session.status !== "authenticated") return;
+
+    const response = await fetch(
       `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${perPage}&page=${page}`,
       {
-        headers: headers,
-      }
+        headers: {
+          "Session-Token": session.user.token,
+        },
+      },
     );
 
-    if (transactionsResponse.status == 200) {
-      let data = await transactionsResponse.json();
-      setTransactions(data);
-      setIsTransactionsLoading(false);
+    if (response.status !== 200) {
+      console.error("Error fetching transactions");
+      return;
     }
-  }
+
+    const data = await response.json();
+
+    setTransactions(data);
+    setIsTransactionsLoading(false);
+  }, [page, perPage, session]);
+
+  const fetchTransactionCount = useCallback(async () => {
+    if (session.status !== "authenticated") return;
+
+    const response = await fetch(
+      "https://ccbank.tkbstudios.com/api/v1/transactions/count",
+      {
+        headers: {
+          "Session-Token": session.user.token,
+        },
+      },
+    );
+
+    if (response.status !== 200) {
+      console.error("Error fetching transaction count");
+      return;
+    }
+
+    const data = await response.json();
+
+    setTotalTransactions(data.count);
+  }, [session]);
 
   useEffect(() => {
     setIsDesktop(window.innerWidth > 1024);
     setCurrentURL(window.location.href);
-    (async () => {
-      let isSessionTokenSet = getCookie("session_token");
-      if (isSessionTokenSet) {
-        const headers = new Headers();
-        const sessionToken = getCookie("session_token");
-        if (sessionToken) {
-          headers.append("Session-Token", sessionToken);
-        }
+  }, []);
 
-        // request balance
-        const balanceResponse = await fetch(
-          "https://ccbank.tkbstudios.com/api/v1/balance",
-          {
-            headers: headers,
-          }
-        );
+  useEffect(() => {
+    fetchTransactions();
+    fetchTransactionCount();
+  }, [fetchTransactionCount, fetchTransactions]);
 
-        if (balanceResponse.status === 200) {
-          const data = await balanceResponse.json();
-          console.log(data);
-          setBalance(data);
-          setTimeout(() => {
-            setIsLoaded(true);
-          }, 100);
-        } else {
-          deleteCookie("session_token");
-          setTimeout(() => {
-            // wait for sonner to load
-            toast.error(
-              "Invalid session token. Please log in again. This happens when you log in from somewhere else"
-            );
-            router.push("/");
-          }, 100);
-        }
-
-        const transactionCountResponse = await fetch(
-          "https://ccbank.tkbstudios.com/api/v1/transactions/count",
-          {
-            headers: headers,
-          }
-        );
-        if (transactionCountResponse.status === 200) {
-          const data = await transactionCountResponse.json();
-          setTotalTransactions(data.count);
-          console.log("data:", data);
-        }
-
-        fetchTransactions();
-      } else {
+  useEffect(() => {
+    if(session.status === "authenticated" && !balanceLoaded) {
         setTimeout(() => {
-          // wait for sonner to load
-          toast.error("You are not logged in. Redirecting to home page.");
-          router.push("/");
-        }, 100);
-      }
-    })();
-  }, [router]);
+            setBalanceLoaded(true);
+        }, 100)
+    }
+  }, [session, balanceLoaded]);
+
+  if(session.status === "unauthenticated") {
+    router.push("/");
+    return null;
+  }
 
   return (
     <div className="flex w-full flex-col px-4 md:px-6">
@@ -375,7 +357,10 @@ export default function Dashboard({
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold">
-              <BalanceCounter balance={balance} isLoaded={isLoaded} />
+              <BalanceCounter
+                balance={session.user?.balance || 0}
+                isLoaded={balanceLoaded}
+              />
             </div>
             {/* <p className="text-sm text-muted-foreground">
               +20.1% from last month 
@@ -392,7 +377,14 @@ export default function Dashboard({
               </CardDescription>
             </div>
             <CreateTransactionButton
-              setBalance={setBalance}
+              setBalance={(balance) => {
+                if (session.status == "authenticated") {
+                  setSession({
+                    ...session,
+                    user: { ...session.user, balance },
+                  });
+                }
+              }}
               isDesktop={isDesktop}
               fetchTransactions={fetchTransactions}
             />
