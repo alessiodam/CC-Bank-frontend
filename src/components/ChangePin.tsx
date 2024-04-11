@@ -20,10 +20,8 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 
 const changePinFormSchema = z.object({
@@ -44,6 +42,10 @@ export function ChangePin({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+  const onSuccess = () => {
+    setOpen(false);
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent>
@@ -53,13 +55,13 @@ export function ChangePin({
             Change your pin to something new.
           </DialogDescription>
         </DialogHeader>
-        <ChangePinForm />
+        <ChangePinForm onSuccess={onSuccess} />
       </DialogContent>
     </Dialog>
   );
 }
 
-export function ChangePinForm() {
+export function ChangePinForm({ onSuccess }: { onSuccess?: () => void; }) {
   const { session } = useSession();
 
   const [isProcessing, setProcessing] = useState(false);
@@ -120,6 +122,8 @@ export function ChangePinForm() {
 
     toast.success("Changed pin succesfully!");
     setProcessing(false);
+
+    if (onSuccess) onSuccess();
   }
 
   return (
