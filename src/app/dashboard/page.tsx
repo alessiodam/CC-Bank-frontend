@@ -328,7 +328,7 @@ export default function Dashboard({
   useEffect(() => {
     fetchTransactions();
     fetchTransactionCount();
-  }, [session, fetchTransactionCount, fetchTransactions]);
+  }, [fetchTransactionCount, fetchTransactions]);
 
   if(session.status === "unauthenticated") {
     router.push("/");
