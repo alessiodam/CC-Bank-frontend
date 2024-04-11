@@ -1,52 +1,14 @@
 "use client";
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
-import { Loader2, Terminal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { deleteCookie, getCookie, hasCookie } from "cookies-next";
-import { z } from "zod";
-import { FormDescription } from "@/components/ui/form";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { LoginButton, RegisterButton } from "../lib/AuthButtons";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "sonner";
+import { useSession } from "@/lib/session";
 
 export default function Home() {
-  const [isLogged, setIsLogged] = React.useState(false);
-  const [isLoaded, setIsLoaded] = React.useState(false);
-  const [isLoginDialogOpen, setLoginDialogOpen] = React.useState(false);
-  const [isProcessing, setProcessing] = React.useState(false);
-
-  useEffect(() => {
-    (async () => {
-      let isSessionTokenSet = hasCookie("session_token");
-      if (isSessionTokenSet) {
-        // send api request to check if the token is valid
-        const headers = new Headers();
-        const sessionToken = getCookie("session_token");
-        if (sessionToken) {
-          headers.append("Session-Token", sessionToken);
-        }
-
-        const response = await fetch(
-          "https://ccbank.tkbstudios.com/api/v1/balance",
-          {
-            headers: headers,
-          },
-        );
-
-        if (response.status === 200) {
-          setIsLogged(true);
-        } else {
-          deleteCookie("session_token");
-          toast.error(
-            "Invalid session token. Please log in again. This happens when you log in from somewhere else",
-          );
-        }
-      }
-      setIsLoaded(true);
-    })();
-  }, []);
+  const { session } = useSession();
 
   return (
     <div className="flex justify-center items-center h-[calc(100vh-64px)] w-screen px-4">
@@ -82,8 +44,8 @@ export default function Home() {
         </p>
         <br />
         <div className="w-full flex justify-center gap-10">
-          {isLoaded ? (
-            isLogged ? (
+          {session.status !== "loading" ? (
+            session.status == "authenticated" ? (
               <div className="flex flex-col gap-4">
                 <p>You are already logged in! 🎉🎉</p>
 

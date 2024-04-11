@@ -6,8 +6,9 @@ import { Navbar } from "@/components/navbar";
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import React from "react";
-import { SpeedInsights } from "@vercel/speed-insights/next"
-import { Analytics } from "@vercel/analytics/react"
+import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Analytics } from "@vercel/analytics/react";
+import { SessionProvider } from "@/lib/session";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -26,8 +27,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  var isLogged = false;
-
   return (
     <html lang="en">
       <body
@@ -36,17 +35,19 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <SpeedInsights/>
-        <Analytics/>
+        <SpeedInsights />
+        <Analytics />
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
           enableSystem
           disableTransitionOnChange
         >
-          <Navbar />
-          <main>{children}</main>
-          <Toaster />
+          <SessionProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Toaster />
+          </SessionProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -1,6 +1,4 @@
 "use client";
-
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -8,23 +6,16 @@ import Link from "next/link";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-import { hasCookie } from "cookies-next";
 import { RegisterButton, LoginButton, LogoutButton } from "@/lib/AuthButtons";
+import { useSession } from "@/lib/session";
 
 export function Navbar() {
-  const [isLogged, setIsLogged] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  useEffect(() => {
-    setIsLogged(hasCookie("session_token"));
-    setIsLoaded(true);
-  }, []);
+  const { session } = useSession();
 
   return (
     <div className="sticky top-0 flex h-16 items-center gap-4 border-b backdrop-blur-sm px-4 md:px-6 z-50">
@@ -34,13 +25,19 @@ export function Navbar() {
         </h1>
         <div className="flex-grow"></div>
         <ul className="hidden gap-4 sm:flex">
-          <NavButtons isLogged={isLogged} isLoaded={isLoaded} />
+          <NavButtons
+            isLogged={session.status == "authenticated"}
+            isLoaded={session.status != "loading"}
+          />
           <li>
             <ThemeToggle alignment="end" />
           </li>
         </ul>
         <div className="block sm:hidden">
-          <MobileMenu isLogged={isLogged} isLoaded={isLoaded} />
+          <MobileMenu
+            isLogged={session.status == "authenticated"}
+            isLoaded={session.status != "loading"}
+          />
         </div>
       </div>
     </div>
