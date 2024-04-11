@@ -400,13 +400,11 @@ export default function Dashboard({
                 <TableRow>
                   <TableHead className="max-sm:hidden">ID</TableHead>
                   <TableHead className="max-sm:hidden">From</TableHead>
-                  <TableHead>ID</TableHead>
-                  <TableHead>From</TableHead>
                   <TableHead>To</TableHead>
                   <TableHead className="max-sm:hidden">Amount</TableHead>
                   <TableHead className="max-md:hidden">Paid tax</TableHead>
                   <TableHead className="max-lg:hidden">Date</TableHead>
-                  <TableHead className="text-right">Inspect</TableHead>{" "}
+                  <TableHead className="text-right">Inspect</TableHead>
                 </TableRow>
               </TableHeader>
               {isTransactionsLoading ? (
