@@ -272,6 +272,7 @@ export default function Dashboard({
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
+  const [balanceLoaded, setBalanceLoaded] = useState(false);
 
   const fetchTransactions = useCallback(async () => {
     setIsTransactionsLoading(true);
@@ -330,6 +331,14 @@ export default function Dashboard({
     fetchTransactionCount();
   }, [fetchTransactionCount, fetchTransactions]);
 
+  useEffect(() => {
+    if(session.status === "authenticated" && !balanceLoaded) {
+        setTimeout(() => {
+            setBalanceLoaded(true);
+        }, 100)
+    }
+  }, [session, balanceLoaded]);
+
   if(session.status === "unauthenticated") {
     router.push("/");
     return null;
@@ -350,7 +359,7 @@ export default function Dashboard({
             <div className="text-4xl font-bold">
               <BalanceCounter
                 balance={session.user?.balance || 0}
-                isLoaded={session.status !== "loading"}
+                isLoaded={balanceLoaded}
               />
             </div>
             {/* <p className="text-sm text-muted-foreground">
