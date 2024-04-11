@@ -16,7 +16,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
@@ -273,7 +273,7 @@ export default function Dashboard({
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
 
-  const fetchTransactions = async () => {
+  const fetchTransactions = useCallback(async () => {
     setIsTransactionsLoading(true);
 
     if (session.status !== "authenticated") return;
@@ -296,9 +296,9 @@ export default function Dashboard({
 
     setTransactions(data);
     setIsTransactionsLoading(false);
-  };
+  }, [page, perPage, session]);
 
-  const fetchTransactionCount = async () => {
+  const fetchTransactionCount = useCallback(async () => {
     if (session.status !== "authenticated") return;
 
     const response = await fetch(
@@ -318,17 +318,17 @@ export default function Dashboard({
     const data = await response.json();
 
     setTotalTransactions(data.count);
-  };
+  }, [session]);
 
   useEffect(() => {
     setIsDesktop(window.innerWidth > 1024);
     setCurrentURL(window.location.href);
-  }, [router]);
+  }, []);
 
   useEffect(() => {
     fetchTransactions();
     fetchTransactionCount();
-  }, [session]);
+  }, [session, fetchTransactionCount, fetchTransactions]);
 
   if(session.status === "unauthenticated") {
     router.push("/");
