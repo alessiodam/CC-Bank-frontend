@@ -99,111 +99,53 @@ function OrderRow({
       <TableCell>
         <div className="flex justify-end">
           {(() => {
-            const isDesktop = window.innerWidth > 1024;
-
-            if (isDesktop)
-              return (
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button size={"icon"}>
-                      <Search className="h-[1.2rem] w-[1.2rem]" />
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>
-                        Bought {item_count} of {item} for {amount * item_count} $OKU
-                      </DialogTitle>
-                    </DialogHeader>
-                    <div className="p-4 border rounded-md">
-                      <p className="flex justify-between">
-                        <span>Item name:</span>
-                        <span>{item}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Item count:</span>
-                        <span>{item_count}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Price per item:</span>
-                        <span>{amount}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Order subtotal (no tax):</span>
-                        <span>{amount * item_count}</span>
-                      </p>
-                      <br />
-                      <p className="flex justify-between">
-                        <span>Transaction Fee (Tax):</span>
-                        <span>{tax}</span>
-                      </p>
-                      <br />
-                      <p className="flex justify-between">
-                        <span>ID:</span>
-                        <span>{id}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Date:</span>
-                        <span>{new Date(date).toLocaleString()}</span>
-                      </p>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              );
-
             return (
-              <Drawer>
-                <DrawerTrigger asChild>
+              <Dialog>
+                <DialogTrigger asChild>
                   <Button size={"icon"}>
                     <Search className="h-[1.2rem] w-[1.2rem]" />
                   </Button>
-                </DrawerTrigger>
-                <DrawerContent>
-                  <DrawerHeader>
-                    <DrawerTitle>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>
                       Bought {item_count} of {item} for {amount * item_count} $OKU
-                    </DrawerTitle>
-                  </DrawerHeader>
-                  <br />
-                  <div className="container">
-                    <div className="p-4 border rounded-md">
+                    </DialogTitle>
+                  </DialogHeader>
+                  <div className="p-4 border rounded-md">
                     <p className="flex justify-between">
-                        <span>Item:</span>
-                        <span>{item}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Amount:</span>
-                        <span>{amount}</span>
-                      </p>
-                      <br />
-                      <p className="flex justify-between">
-                        <span>Transaction Fee (Tax):</span>
-                        <span>{tax}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Item count:</span>
-                        <span>{amount}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Amount:</span>
-                        <span>{amount}</span>
-                      </p>
-                      <br />
-                      <p className="flex justify-between">
-                        <span>ID:</span>
-                        <span>{id}</span>
-                      </p>
-                      <p className="flex justify-between">
-                        <span>Date:</span>
-                        <span>{new Date(date).toLocaleString()}</span>
-                      </p>
-                    </div>
+                      <span>Item name:</span>
+                      <span>{item}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Item count:</span>
+                      <span>{item_count}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Price per item:</span>
+                      <span>{amount}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Order subtotal (no tax):</span>
+                      <span>{amount * item_count}</span>
+                    </p>
+                    <br />
+                    <p className="flex justify-between">
+                      <span>Transaction Fee (Tax):</span>
+                      <span>{tax}</span>
+                    </p>
+                    <br />
+                    <p className="flex justify-between">
+                      <span>ID:</span>
+                      <span>{id}</span>
+                    </p>
+                    <p className="flex justify-between">
+                      <span>Date:</span>
+                      <span>{new Date(date).toLocaleString()}</span>
+                    </p>
                   </div>
-                  <DrawerFooter>
-                    <DrawerClose />
-                  </DrawerFooter>
-                </DrawerContent>
-              </Drawer>
+                </DialogContent>
+              </Dialog>
             );
           })()}
         </div>
@@ -312,7 +254,7 @@ export default function ClickNCollect() {
               </CardDescription>
             </div>
             <CreateOrderButton
-              isDesktop={window.innerWidth > 1024} fetchOrders={fetchOrders}
+              fetchOrders={fetchOrders}
             />
           </CardHeader>
           <CardContent>
@@ -358,77 +300,5 @@ export default function ClickNCollect() {
         </Card>
       </main>
     </div>
-  );
-}
-function RenderPagination({
-  currentPage: currentPageString,
-  totalOrders: totalOrders,
-  perPage: perPageString,
-}: {
-  currentPage: string;
-  totalOrders: number;
-  perPage: string;
-}) {
-  if (totalOrders < 0) {
-    console.error("totalOrders is lower than 0");
-    return <p>An error occured.</p>;
-  }
-
-  if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
-    window.location.reload();
-  }
-
-  const currentPage = Number(currentPageString),
-    perPage = Number(perPageString),
-    totalPages = Math.ceil(totalOrders / perPage);
-
-  console.log(totalPages, currentPage, totalOrders, perPage);
-
-  return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          {currentPage == 1 ? (
-            <PaginationPrevious className="pointer-events-none text-zinc-500" />
-          ) : (
-            <PaginationPrevious href={String(currentPage + 1)} />
-          )}
-        </PaginationItem>
-        {currentPage > 2 && (
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-        )}
-        {currentPage - 1 > 0 && (
-          <PaginationItem>
-            <PaginationLink href={String(currentPage - 1)}>
-              {currentPage - 1}
-            </PaginationLink>
-          </PaginationItem>
-        )}
-        <PaginationItem>
-          <PaginationLink href="#">{currentPage}</PaginationLink>
-        </PaginationItem>
-        {currentPage + 1 <= totalPages && (
-          <PaginationItem>
-            <PaginationLink href={String(currentPage + 1)}>
-              {currentPage + 1}
-            </PaginationLink>
-          </PaginationItem>
-        )}
-        {currentPage + 2 <= totalPages && (
-          <PaginationItem>
-            <PaginationEllipsis />
-          </PaginationItem>
-        )}
-        <PaginationItem>
-          {currentPage == totalPages ? (
-            <PaginationNext className="pointer-events-none text-zinc-500" />
-          ) : (
-            <PaginationNext href={String(currentPage + 1)} />
-          )}
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
   );
 }
