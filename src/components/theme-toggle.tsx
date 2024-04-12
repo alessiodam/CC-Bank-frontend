@@ -22,7 +22,7 @@ export function ThemeToggle() {
             <div className="flex items-center">
                 <Sun className="h-4 w-4  scale-100 dark:scale-0 mr-1" />
                 <Moon className="absolute h-4 w-4 scale-0 dark:scale-100 mr-1" />
-                {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "UDNEFINED THEME"}
+                {theme ? theme.charAt(0).toUpperCase() + theme.slice(1) : "Dark"}
             </div>
         </DropdownMenuItem>
     );
