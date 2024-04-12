@@ -2,9 +2,9 @@ name: Lint
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: ["main", "dev"]
   push:
-    branches: [ "main", "dev" ]
+    branches: ["main", "dev"]
 
 jobs:
   run-linters:
@@ -23,7 +23,7 @@ jobs:
       - uses: pnpm/action-setup@v3
         with:
           version: 8
-  
+
       - name: Install dependencies
         run: pnpm install
 

@@ -229,11 +229,12 @@ function BalanceCounter({
                     className="flex flex-col h-fit ease-out"
                     style={
                       {
-                        transform: `translateY(-${isLoaded
-                          ? (Number(digit) / (index + 1)) * 10 +
-                          (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
-                          : 0
-                          }%)`,
+                        transform: `translateY(-${
+                          isLoaded
+                            ? (Number(digit) / (index + 1)) * 10 +
+                              (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
+                            : 0
+                        }%)`,
                         transition:
                           "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
                       } as React.CSSProperties
@@ -261,7 +262,7 @@ function BalanceCounter({
 export default function Dashboard({
   searchParams,
 }: {
-  searchParams: { [key: string]: string | undefined }
+  searchParams: { [key: string]: string | undefined };
 }) {
   const perPage = searchParams["perPage"] || "15";
   const page = searchParams["page"] || "1";
@@ -414,7 +415,7 @@ export default function Dashboard({
                 </TableBody>
               ) : (
                 <TableBody>
-                  {transactions.map(transaction => (
+                  {transactions.map((transaction) => (
                     <TransactionRow
                       key={transaction.id}
                       from_user={transaction.from_user}
@@ -475,7 +476,7 @@ function RenderPagination({
     url.searchParams.set("page", page);
 
     return url.toString();
-  }
+  };
 
   return (
     <Pagination>
@@ -484,7 +485,9 @@ function RenderPagination({
           {currentPage == 1 ? (
             <PaginationPrevious className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationPrevious href={createPaginatedURL(String(currentPage - 1))} />
+            <PaginationPrevious
+              href={createPaginatedURL(String(currentPage - 1))}
+            />
           )}
         </PaginationItem>
         {currentPage > 2 && (
@@ -518,7 +521,9 @@ function RenderPagination({
           {currentPage == totalPages ? (
             <PaginationNext className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationNext href={createPaginatedURL(String(currentPage + 1))} />
+            <PaginationNext
+              href={createPaginatedURL(String(currentPage + 1))}
+            />
           )}
         </PaginationItem>
       </PaginationContent>
