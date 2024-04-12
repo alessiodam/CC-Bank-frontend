@@ -1,6 +1,5 @@
 "use client";
 import { DollarSign, Search } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -17,9 +16,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useState } from "react";
-import { deleteCookie, getCookie } from "cookies-next";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -27,7 +25,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { toast } from "sonner";
 import {
   Pagination,
   PaginationContent,
@@ -49,6 +46,8 @@ import {
 } from "@/components/ui/drawer";
 import { CreateTransactionButton } from "@/lib/TransactionButtons";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { useSession } from "@/lib/session";
 
 function TransactionRow({
   from_user,
@@ -260,97 +259,95 @@ function BalanceCounter({
 }
 
 export default function Dashboard({
-  params,
+  searchParams,
 }: {
-  params: { page: string; perPage: string };
+  searchParams: { [key: string]: string | undefined };
 }) {
+  const perPage = searchParams["perPage"] || "15";
+  const page = searchParams["page"] || "1";
+
+  const { session, setSession } = useSession();
+
   const router = useRouter();
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [balance, setBalance] = useState(0);
+  const [currentURL, setCurrentURL] = useState(
+    "https://ccbank.tkbstudios.com" + usePathname()
+  );
+
+  const [isDesktop, setIsDesktop] = useState(false);
   const [totalTransactions, setTotalTransactions] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [isTransactionsLoading, setIsTransactionsLoading] = useState(true);
+  const [balanceLoaded, setBalanceLoaded] = useState(false);
 
-  async function fetchTransactions() {
+  const fetchTransactions = useCallback(async () => {
     setIsTransactionsLoading(true);
-    const headers = new Headers();
-    const sessionToken = getCookie("session_token");
-    if (sessionToken) {
-      headers.append("Session-Token", sessionToken);
-    }
 
-    const transactionsResponse = await fetch(
-      `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${params.perPage}&page=${params.page}`,
+    if (session.status !== "authenticated") return;
+
+    const response = await fetch(
+      `https://ccbank.tkbstudios.com/api/v1/transactions/list?per_page=${perPage}&page=${page}`,
       {
-        headers: headers,
-      },
+        headers: {
+          "Session-Token": session.user.token,
+        },
+      }
     );
 
-    if (transactionsResponse.status == 200) {
-      let data = await transactionsResponse.json();
-      setTransactions(data);
-      setIsTransactionsLoading(false);
+    if (response.status !== 200) {
+      console.error("Error fetching transactions");
+      return;
     }
-  }
+
+    const data = await response.json();
+
+    setTransactions(data);
+    setIsTransactionsLoading(false);
+  }, [page, perPage, session]);
+
+  const fetchTransactionCount = useCallback(async () => {
+    if (session.status !== "authenticated") return;
+
+    const response = await fetch(
+      "https://ccbank.tkbstudios.com/api/v1/transactions/count",
+      {
+        headers: {
+          "Session-Token": session.user.token,
+        },
+      }
+    );
+
+    if (response.status !== 200) {
+      console.error("Error fetching transaction count");
+      return;
+    }
+
+    const data = await response.json();
+
+    setTotalTransactions(data.count);
+  }, [session]);
 
   useEffect(() => {
-    (async () => {
-      let isSessionTokenSet = getCookie("session_token");
-      if (isSessionTokenSet) {
-        const headers = new Headers();
-        const sessionToken = getCookie("session_token");
-        if (sessionToken) {
-          headers.append("Session-Token", sessionToken);
-        }
+    setIsDesktop(window.innerWidth > 1024);
+    setCurrentURL(window.location.href);
+  }, []);
 
-        // request balance
-        const balanceResponse = await fetch(
-          "https://ccbank.tkbstudios.com/api/v1/balance",
-          {
-            headers: headers,
-          },
-        );
+  useEffect(() => {
+    fetchTransactions();
+    fetchTransactionCount();
+  }, [fetchTransactionCount, fetchTransactions]);
 
-        if (balanceResponse.status === 200) {
-          const data = await balanceResponse.json();
-          console.log(data);
-          setBalance(data);
-          setTimeout(() => {
-            setIsLoaded(true);
-          }, 100);
-        } else {
-          deleteCookie("session_token");
-          setTimeout(() => {
-            // wait for sonner to load
-            toast.error(
-              "Invalid session token. Please log in again. This happens when you log in from somewhere else",
-            );
-            router.push("/");
-          }, 100);
-        }
+  useEffect(() => {
+    if (session.status === "authenticated" && !balanceLoaded) {
+      setTimeout(() => {
+        setBalanceLoaded(true);
+      }, 100);
+    }
+  }, [session, balanceLoaded]);
 
-        const transactionCountResponse = await fetch(
-          "https://ccbank.tkbstudios.com/api/v1/transactions/count",
-          {
-            headers: headers,
-          },
-        );
-        if (transactionCountResponse.status === 200) {
-          const data = await transactionCountResponse.json();
-          setTotalTransactions(data.count);
-          console.log("data:", data);
-        }
-
-        fetchTransactions();
-      } else {
-        setTimeout(() => {
-          // wait for sonner to load
-          toast.error("You are not logged in. Redirecting to home page.");
-          router.push("/");
-        }, 100);
-      }
-    })();
-  }, [router, params.perPage, params.page]);
+  if (session.status === "unauthenticated") {
+    router.push("/");
+    return null;
+  }
 
   return (
     <div className="flex w-full flex-col px-4 md:px-6">
@@ -365,7 +362,10 @@ export default function Dashboard({
           </CardHeader>
           <CardContent>
             <div className="text-4xl font-bold">
-              <BalanceCounter balance={balance} isLoaded={isLoaded} />
+              <BalanceCounter
+                balance={session.user?.balance || 0}
+                isLoaded={balanceLoaded}
+              />
             </div>
             {/* <p className="text-sm text-muted-foreground">
               +20.1% from last month 
@@ -382,8 +382,15 @@ export default function Dashboard({
               </CardDescription>
             </div>
             <CreateTransactionButton
-              setBalance={setBalance}
-              isDesktop={window.innerWidth > 1024}
+              setBalance={(balance) => {
+                if (session.status == "authenticated") {
+                  setSession({
+                    ...session,
+                    user: { ...session.user, balance },
+                  });
+                }
+              }}
+              isDesktop={isDesktop}
               fetchTransactions={fetchTransactions}
             />
           </CardHeader>
@@ -391,13 +398,13 @@ export default function Dashboard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>From</TableHead>
+                  <TableHead className="max-sm:hidden">ID</TableHead>
+                  <TableHead className="max-sm:hidden">From</TableHead>
                   <TableHead>To</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Paid tax</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Inspect</TableHead>
+                  <TableHead className="max-sm:hidden">Amount</TableHead>
+                  <TableHead className="max-md:hidden">Paid tax</TableHead>
+                  <TableHead className="max-lg:hidden">Date</TableHead>
+                  <TableHead className="text-right">Inspect</TableHead>
                 </TableRow>
               </TableHeader>
               {isTransactionsLoading ? (
@@ -412,7 +419,7 @@ export default function Dashboard({
                 </TableBody>
               ) : (
                 <TableBody>
-                  {transactions.map(transaction => (
+                  {transactions.map((transaction) => (
                     <TransactionRow
                       key={transaction.id}
                       from_user={transaction.from_user}
@@ -429,9 +436,11 @@ export default function Dashboard({
             </Table>
             <br />
             <RenderPagination
-              currentPage={params.page}
+              currentPage={page}
               totalTransactions={totalTransactions}
-              perPage={params.perPage}
+              perPage={perPage}
+              router={router}
+              currentURL={currentURL}
             />
           </CardContent>
         </Card>
@@ -443,10 +452,14 @@ function RenderPagination({
   currentPage: currentPageString,
   totalTransactions,
   perPage: perPageString,
+  router,
+  currentURL,
 }: {
   currentPage: string;
   totalTransactions: number;
   perPage: string;
+  router: AppRouterInstance;
+  currentURL: string;
 }) {
   if (totalTransactions < 0) {
     console.error("totalTransactions is lower than 0");
@@ -454,7 +467,7 @@ function RenderPagination({
   }
 
   if (isNaN(Number(currentPageString)) || isNaN(Number(perPageString))) {
-    window.location.href = "/dashboard/15/1";
+    router.push("/dashboard");
   }
 
   const currentPage = Number(currentPageString),
@@ -467,6 +480,15 @@ function RenderPagination({
 
   console.log(totalPages, currentPage, totalTransactions, perPage);
 
+  const createPaginatedURL = (page: string) => {
+    console.log("pathname:", currentURL);
+    const url = new URL(currentURL);
+
+    url.searchParams.set("page", page);
+
+    return url.toString();
+  };
+
   return (
     <Pagination>
       <PaginationContent>
@@ -474,7 +496,9 @@ function RenderPagination({
           {currentPage == 1 ? (
             <PaginationPrevious className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationPrevious href={String(currentPage + 1)} />
+            <PaginationPrevious
+              href={createPaginatedURL(String(currentPage - 1))}
+            />
           )}
         </PaginationItem>
         {currentPage > 2 && (
@@ -484,7 +508,7 @@ function RenderPagination({
         )}
         {currentPage - 1 > 0 && (
           <PaginationItem>
-            <PaginationLink href={String(currentPage - 1)}>
+            <PaginationLink href={createPaginatedURL(String(currentPage - 1))}>
               {currentPage - 1}
             </PaginationLink>
           </PaginationItem>
@@ -494,7 +518,7 @@ function RenderPagination({
         </PaginationItem>
         {currentPage + 1 <= totalPages && (
           <PaginationItem>
-            <PaginationLink href={String(currentPage + 1)}>
+            <PaginationLink href={createPaginatedURL(String(currentPage + 1))}>
               {currentPage + 1}
             </PaginationLink>
           </PaginationItem>
@@ -508,7 +532,9 @@ function RenderPagination({
           {currentPage == totalPages ? (
             <PaginationNext className="pointer-events-none text-zinc-500" />
           ) : (
-            <PaginationNext href={String(currentPage + 1)} />
+            <PaginationNext
+              href={createPaginatedURL(String(currentPage + 1))}
+            />
           )}
         </PaginationItem>
       </PaginationContent>
