@@ -24,6 +24,7 @@ type SessionValue =
 
 interface SessionContextProps {
   session: SessionValue;
+  logout: () => void;
   setSession: (session: SessionValue) => void;
 }
 
@@ -80,12 +81,21 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const logout = () => {
+    deleteCookie(SESSION_COOKIE);
+
+    setSession({
+      status: "unauthenticated",
+      user: null,
+    });
+  }
+
   useEffect(() => {
     updateSession();
   }, []);
 
   return (
-    <SessionContext.Provider value={{ session, setSession }}>
+    <SessionContext.Provider value={{ session, setSession, logout }}>
       {children}
     </SessionContext.Provider>
   );
