@@ -228,7 +228,12 @@ function BalanceCounter({
                     className="flex flex-col h-fit ease-out"
                     style={
                       {
-                        transform: `translateY(-${isLoaded ? (Number(digit) / (index + 1)) * 10 + (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100) : 0}%)`,
+                        transform: `translateY(-${
+                          isLoaded
+                            ? (Number(digit) / (index + 1)) * 10 +
+                              (index == 0 ? 0 : 100 - (1 / (index + 1)) * 100)
+                            : 0
+                        }%)`,
                         transition:
                           "all 2.5s cubic-bezier(0.09, 0.61, 0.14, 0.99)",
                       } as React.CSSProperties
@@ -265,7 +270,7 @@ export default function Dashboard({
 
   const router = useRouter();
   const [currentURL, setCurrentURL] = useState(
-    "https://ccbank.tkbstudios.com" + usePathname(),
+    "https://ccbank.tkbstudios.com" + usePathname()
   );
 
   const [isDesktop, setIsDesktop] = useState(false);
@@ -285,7 +290,7 @@ export default function Dashboard({
         headers: {
           "Session-Token": session.user.token,
         },
-      },
+      }
     );
 
     if (response.status !== 200) {
@@ -308,7 +313,7 @@ export default function Dashboard({
         headers: {
           "Session-Token": session.user.token,
         },
-      },
+      }
     );
 
     if (response.status !== 200) {
@@ -332,14 +337,14 @@ export default function Dashboard({
   }, [fetchTransactionCount, fetchTransactions]);
 
   useEffect(() => {
-    if(session.status === "authenticated" && !balanceLoaded) {
-        setTimeout(() => {
-            setBalanceLoaded(true);
-        }, 100)
+    if (session.status === "authenticated" && !balanceLoaded) {
+      setTimeout(() => {
+        setBalanceLoaded(true);
+      }, 100);
     }
   }, [session, balanceLoaded]);
 
-  if(session.status === "unauthenticated") {
+  if (session.status === "unauthenticated") {
     router.push("/");
     return null;
   }
@@ -393,13 +398,13 @@ export default function Dashboard({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>ID</TableHead>
-                  <TableHead>From</TableHead>
+                  <TableHead className="max-sm:hidden">ID</TableHead>
+                  <TableHead className="max-sm:hidden">From</TableHead>
                   <TableHead>To</TableHead>
-                  <TableHead>Amount</TableHead>
-                  <TableHead>Paid tax</TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead>Inspect</TableHead>
+                  <TableHead className="max-sm:hidden">Amount</TableHead>
+                  <TableHead className="max-md:hidden">Paid tax</TableHead>
+                  <TableHead className="max-lg:hidden">Date</TableHead>
+                  <TableHead className="text-right">Inspect</TableHead>
                 </TableRow>
               </TableHeader>
               {isTransactionsLoading ? (
