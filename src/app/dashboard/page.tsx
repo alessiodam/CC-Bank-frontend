@@ -270,7 +270,7 @@ export default function Dashboard({
 
   const router = useRouter();
   const [currentURL, setCurrentURL] = useState(
-    "https://ccbank.tkbstudios.com" + usePathname()
+    "https://ccbank.tkbstudios.com" + usePathname(),
   );
 
   const [isDesktop, setIsDesktop] = useState(false);
@@ -290,7 +290,7 @@ export default function Dashboard({
         headers: {
           "Session-Token": session.user.token,
         },
-      }
+      },
     );
 
     if (response.status !== 200) {
@@ -313,7 +313,7 @@ export default function Dashboard({
         headers: {
           "Session-Token": session.user.token,
         },
-      }
+      },
     );
 
     if (response.status !== 200) {

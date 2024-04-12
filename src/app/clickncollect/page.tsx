@@ -109,7 +109,8 @@ function OrderRow({
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>
-                      Bought {item_count} of {item} for {amount * item_count} $OKU
+                      Bought {item_count} of {item} for {amount * item_count}{" "}
+                      $OKU
                     </DialogTitle>
                   </DialogHeader>
                   <div className="p-4 border rounded-md">
@@ -249,13 +250,9 @@ export default function ClickNCollect() {
           <CardHeader className="flex flex-row items-center justify-between">
             <div className="grid gap-2 justify-between">
               <CardTitle>My Orders</CardTitle>
-              <CardDescription>
-                A list of all recent orders
-              </CardDescription>
+              <CardDescription>A list of all recent orders</CardDescription>
             </div>
-            <CreateOrderButton
-              fetchOrders={fetchOrders}
-            />
+            <CreateOrderButton fetchOrders={fetchOrders} />
           </CardHeader>
           <CardContent>
             <Table>
@@ -282,7 +279,7 @@ export default function ClickNCollect() {
                 </TableBody>
               ) : (
                 <TableBody>
-                  {orders.map(order => (
+                  {orders.map((order) => (
                     <OrderRow
                       key={order.id}
                       id={order.id}

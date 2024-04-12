@@ -1,0 +1,4 @@
+{
+  "*": "prettier --write -u",
+  "*.{js,jsx,ts,tsx}": "eslint"
+}
