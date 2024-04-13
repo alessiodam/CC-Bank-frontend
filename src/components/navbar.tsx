@@ -130,7 +130,7 @@ function NavButtons({
             }
           : {})}
       >
-        <Skeleton className="w-20 h-full" />
+        <Skeleton className="w-40 h-10" />
       </li>
     );
   }
