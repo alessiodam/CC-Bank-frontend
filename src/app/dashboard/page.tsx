@@ -409,10 +409,28 @@ export default function Dashboard({
               </TableHeader>
               {isTransactionsLoading ? (
                 <TableBody>
-                  {Array.from({ length: 10 }).map((_, index) => (
+                  {Array.from({ length: Number(perPage) }).map((_, index) => (
                     <TableRow key={index}>
-                      <TableCell colSpan={6}>
-                        <Skeleton className="h-6" />
+                      <TableCell>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                      <TableCell>
+                        <Skeleton className="w-full h-6" />
+                      </TableCell>
+                      <TableCell className="justify-end flex">
+                        <Skeleton className="h-10 w-10" />
                       </TableCell>
                     </TableRow>
                   ))}
