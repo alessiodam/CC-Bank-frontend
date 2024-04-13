@@ -88,7 +88,7 @@ export function SessionProvider({ children }: { children: React.ReactNode }) {
       status: "unauthenticated",
       user: null,
     });
-  }
+  };
 
   useEffect(() => {
     updateSession();

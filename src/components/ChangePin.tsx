@@ -44,7 +44,7 @@ export function ChangePin({
 }) {
   const onSuccess = () => {
     setOpen(false);
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -61,7 +61,7 @@ export function ChangePin({
   );
 }
 
-export function ChangePinForm({ onSuccess }: { onSuccess?: () => void; }) {
+export function ChangePinForm({ onSuccess }: { onSuccess?: () => void }) {
   const { session } = useSession();
 
   const [isProcessing, setProcessing] = useState(false);
