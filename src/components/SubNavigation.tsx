@@ -36,8 +36,8 @@ export default function SubNavigation({
     <div className="sticky flex items-center h-10 backdrop-blur-sm z-50 border-b">
       <ul className="flex gap-1 h-full w-full container">
         {links.map(({ href, label }) => (
-          <li key={href} className="flex-1 h-full">
-            <NavLink href={href}>{label}</NavLink>
+          <li key={href} className="h-full">
+            <SubNavigationButton href={href}>{label}</SubNavigationButton>
           </li>
         ))}
       </ul>
