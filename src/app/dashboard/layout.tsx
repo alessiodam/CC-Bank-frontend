@@ -7,7 +7,12 @@ export default function DashboardLayout({
 }) {
   return (
     <>
-      <SubNavigation />
+      <SubNavigation
+        links={[
+          { href: "/dashboard", label: "Dashboard" },
+          { href: "/dashboard/clickncollect", label: "Click n Collect" },
+        ]}
+      />
       {children}
     </>
   );
