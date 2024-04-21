@@ -1,4 +1,5 @@
 import SubNavigation from "@/components/SubNavigation";
+import { PanelsTopLeft, ShoppingCart } from "lucide-react";
 
 export default function DashboardLayout({
   children,
@@ -9,8 +10,12 @@ export default function DashboardLayout({
     <>
       <SubNavigation
         links={[
-          { href: "/dashboard", label: "Dashboard" },
-          { href: "/dashboard/clickncollect", label: "Click n Collect" },
+          { href: "/dashboard", label: "Dashboard", icon: PanelsTopLeft },
+          {
+            href: "/dashboard/clickncollect",
+            label: "Click n Collect",
+            icon: ShoppingCart,
+          },
         ]}
       />
       {children}
